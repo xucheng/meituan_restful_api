@@ -1,4 +1,5 @@
 meituan_restful_api
 ===================
 
-union meituan restful api , i put my works here because meituan has changed this api and has gone out of use. so for personal study reason
+These works was union of meituan restful api. 
+For personal study reason, I put my works here because meituan has changed this api and it has gone out of use. 
