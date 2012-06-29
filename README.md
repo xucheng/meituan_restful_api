@@ -4,7 +4,7 @@ meituan_restful_api
 These works was union of meituan restful api. 
 For personal study reason, I put my works here because meituan has changed this api and it has gone out of use. 
 
-These codes was written by myself in several days, and they are my first attempt on nodejs coding. So, it may 
+These codes were written by myself in several days, and they are my first attempt on nodejs coding. So, it may 
 provide some meaningful thoughts to you, although some codes are raw and not pefect . 
 
 It runs several months in product environment. After my left, no one could(would) maintance it.
