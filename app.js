@@ -44,10 +44,14 @@ app.use('/', routes);
 // Error handler middleware (must be after routes)
 app.use(errorHandler);
 
-// Connect to MongoDB
-mongoDb.connect().catch(err => {
-  logger.error('Failed to connect to MongoDB:', err);
-});
+// Connect to MongoDB if not skipped
+if (!process.env.SKIP_DB_CONNECTION) {
+  mongoDb.connect().catch(err => {
+    logger.error('Failed to connect to MongoDB:', err);
+  });
+} else {
+  logger.info('Skipping database connections for testing');
+}
 
 // Start server
 if (cluster.isPrimary && NODE_ENV === 'production') {
