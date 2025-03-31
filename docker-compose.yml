@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - WORKERS=4
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=meituan
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=meituan
+      - MONGODB_URI=mongodb://mongo:27017/meituan_api
+    volumes:
+      - ./logs:/usr/src/app/logs
+    depends_on:
+      - mysql
+      - mongo
+    restart: unless-stopped
+    
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=meituan
+      - MYSQL_USER=meituan
+      - MYSQL_PASSWORD=password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    
+  mongo:
+    image: mongo:5.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  mongo_data:
