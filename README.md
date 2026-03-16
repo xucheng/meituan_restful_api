@@ -104,6 +104,49 @@ dao/
 
 `boot.js` auto-loads all files under `controller/` and maps exported function names (`index`, `city`, `area`, `meituan`, `hao123v2`, `tuan800`) to corresponding route patterns via convention.
 
+### Route Regex Explained
+
+`boot.js` 中 `bootController` 函数根据 controller 导出的函数名，将其映射到不同的路由模式：
+
+**简单路由**（`index` / `city` / `area`）使用 Express 命名参数：
+
+```
+index → prefix.:type?                          # e.g. /data/city.json
+city  → prefix.:type?/city/:city               # e.g. /data/city.json/city/beijing
+area  → prefix.:type?/city/:city/area/:area    # e.g. /data/city.json/city/beijing/area/chaoyang
+```
+
+**复杂路由**（`meituan` / `hao123v2` / `tuan800`）使用正则表达式，所有路径段均为可选，按固定顺序排列。以 `meituan` 路由为例：
+
+```
+^\/data\/meituan                        # 固定前缀
+(?:\.(\\w+))?                            # [1] type — 响应格式 (json/xml)，可选
+(?:\\/city(?:(?:\\/([\\w]+))?            # [2] city — 城市名或ID
+  (?:\\/area(?:\\/([\\w]+))?)?           # [3] area — 区域名或ID（嵌套在 city 下）
+)?)?
+(?:\\/price(?:\\/(\\w+)?)?)?             # [4] price — 价格区间代号 (a/b/c/d)
+(?:\\/category(?:\\/(\\w+)?)?)?          # [5] category — 分类代号 (cm/xy/mb/sf/wg/qt)
+(?:\\/order(?:\\/([\\w-]+)?)?)?          # [6] order — 排序字段+方向 (jg-desc)
+(?:\\/k(?:\\/([^\\/]+)?)?)?              # [7] keyword — 搜索关键词
+(?:\\/pagesize(?:\\/(\\d+)?)?)?          # [8] pagesize — 每页条数
+(?:\\/page(?:\\/(\\d+)?)?)?              # [9] page — 页码
+```
+
+**核心设计：** 每个路径段的结构都是 `(?:\\/segname(?:\\/(capture)?)?)?`，即：
+1. 外层 `(?:...)?` — 整个段可选
+2. `\\/segname` — 段名作为字面量匹配（如 `/city`、`/price`）
+3. 内层 `(?:\\/(capture)?)?` — 段值可选，用捕获组提取
+
+这种设计使得 URL 中每一段都可以省略，但必须按固定顺序出现。匹配结果通过 `req.params[0]` ~ `req.params[N]` 按序访问。
+
+`hao123v2` 和 `tuan800` 路由结构相同，只是参数段不同：
+
+| 路由 | 独有参数 |
+|---|---|
+| `meituan` | city/area, price(代号), category, order, k, pagesize, page |
+| `hao123v2` | key(32位), city/range, price(数值区间), rebate, category/subcategory, start/end(日期), order, k, pagesize, page |
+| `tuan800` | key(32位), city, shoparea, price(数值区间), tag, start/end(日期), post(0/1), soldout(0/1), order, k, pagesize, page |
+
 ## Dependencies
 
 All dependencies are committed in `node_modules/` (no `package.json` in the original project):
