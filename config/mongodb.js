@@ -1,3 +1,3 @@
 module.exports={
-	dsn : 'mongodb://localhost/' 
+	dsn : process.env.MONGODB_URI || 'mongodb://localhost/'
 } ;
